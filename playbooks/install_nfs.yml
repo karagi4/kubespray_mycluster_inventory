@@ -1,0 +1,9 @@
+---
+- name: Установка nfs-common на группу хостов my
+  hosts: all
+  become: true
+  tasks:
+    - name: Установка пакета nfs-common
+      apt:
+        name: nfs-common
+        state: present

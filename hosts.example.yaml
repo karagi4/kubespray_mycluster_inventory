@@ -1,0 +1,39 @@
+all:
+  hosts:
+    node1:
+      ansible_host: 158.160.14.36
+      # ansible_ssh_pass: 
+      ip: 10.129.0.19
+      # access_ip:
+    node2:
+      ansible_host: 158.160.27.233
+      # ansible_ssh_pass: 
+      ip: 10.129.0.8
+      # access_ip:
+    node3:
+      ansible_host: 84.252.140.143
+      # ansible_ssh_pass: 
+      ip: 10.129.0.35
+      # access_ip:
+  children:
+    # kube_control_plane - группа мастер узлов - здесь будет запущен api-server, scheduler и controllers
+    kube_control_plane:
+      hosts:
+        node1:
+    # kube-node - группа узлов, на которых будет запускаться полезная нагрузка - то есть ваши приложения
+    kube_node:
+      hosts:
+        node2:
+        node3:
+    # etcd - группа узлов, на которых будет запущен etcd кластер, который хранит в себе полное состояние кластера
+    etcd:
+      hosts:
+        node1:
+    # k8-cluster - объединение controle plane & kube-node хостов
+    k8s_cluster:
+      children:
+        kube_control_plane:
+        kube_node:
+    # calico-rr - группа узлов route reflectors - относится к настройкам сети
+    calico_rr:
+      hosts: {}
