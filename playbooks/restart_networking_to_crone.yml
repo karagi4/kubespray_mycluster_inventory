@@ -1,0 +1,38 @@
+---
+# ansible-playbook -i inventory/mycluster/hosts.yaml -l node2,node3 -u kav -b -K inventory/mycluster/playbooks/restart_networking_to_crone.yml
+- name: "Создание директории, копирование скрипта и добавление задания в cron"
+  hosts: all
+  become: true
+
+  tasks:
+    - name: "Создать директорию /scripts"
+      ansible.builtin.file:
+        path: /scripts
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+
+    - name: "Создать скрипт в /scripts"
+      ansible.builtin.copy:
+        dest: /scripts/check_ip_and_restart_networking.sh
+        content: |
+          #!/bin/bash
+          # journalctl -g "IP-адрес отсутствует"
+          MAIN_IFACE=$(ip route | awk '/default/ {print $5}')
+          if ! ip -4 addr show "$MAIN_IFACE" | grep -q "inet"; then
+              logger "IP-адрес отсутствует на $MAIN_IFACE — перезапускаю сеть"
+              systemctl restart networking
+          else
+              echo "Перезапуск $MAIN_IFACE не требуется!"
+          fi
+        mode: 0755
+        owner: root
+        group: root
+
+    - name: "Добавить задание в cron для root"
+      ansible.builtin.cron:
+        name: "Проверка IP и перезапуск сети"
+        minute: "*/5"
+        job: "/scripts/check_ip_and_restart_networking.sh"
+        user: root

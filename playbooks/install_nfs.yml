@@ -1,4 +1,5 @@
 ---
+# ansible-playbook -i inventory/mycluster/hosts.yaml -l node2,node3 -u kav -b -K inventory/mycluster/playbooks/install_nfs.yml
 - name: Установка nfs-common на группу хостов my
   hosts: all
   become: true
