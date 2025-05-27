@@ -33,6 +33,6 @@
     - name: "Добавить задание в cron для root"
       ansible.builtin.cron:
         name: "Проверка IP и перезапуск сети"
-        minute: "*/5"
+        minute: "*/3"
         job: "/scripts/check_ip_and_restart_networking.sh"
         user: root
